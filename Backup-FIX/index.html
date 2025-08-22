@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KMeans Clustering</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="p-4">
+  <div class="container">
+
+    <h2 class="mb-4">Analisis Clustering Data Siswa</h2>
+
+    <!-- Grafik Elbow -->
+    <h4>Metode Elbow</h4>
+    <img src="data:image/png;base64,{{ elbow_plot }}" class="img-fluid mb-4 border rounded">
+
+    <!-- Silhouette Score -->
+    <h4>Silhouette Scores</h4>
+    <ul class="list-group mb-4">
+      {% for k, score in silhouette_scores %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Jumlah cluster = {{k}}
+          <span class="badge bg-primary rounded-pill">{{score}}</span>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <!-- Form pilih cluster -->
+    <form method="post" class="mb-4">
+      <label for="n_clusters" class="form-label">Pilih Jumlah Cluster:</label>
+      <select name="n_clusters" id="n_clusters" class="form-select w-auto d-inline-block">
+        {% for k in range(2,8) %}
+          <option value="{{k}}" {% if k == n_clusters %}selected{% endif %}>{{k}}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-success ms-2">Terapkan</button>
+    </form>
+
+    <!-- Grafik cluster -->
+    <h4>Grafik Clustering (k={{n_clusters}})</h4>
+    <img src="data:image/png;base64,{{ cluster_plot }}" class="img-fluid mb-4 border rounded">
+
+    <!-- Tabel data -->
+    <h4>Tabel Data (Cluster = {{n_clusters}})</h4>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Nama</th>
+            <th class="text-end">Tinggi (cm)</th>
+            <th class="text-end">Berat (kg)</th>
+            <th class="text-end">Cluster</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in df %}
+            <tr>
+              <td class="text-start">{{ row["Nama"] }}</td>
+              <td class="text-end">{{ row["Tinggi"] }}</td>
+              <td class="text-end">{{ row["Berat"] }}</td>
+              <td class="text-end">{{ row["Cluster"] }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Data per Cluster -->
+    <h4 class="mt-5">Daftar Siswa per Cluster</h4>
+    <div class="row">
+      {% for c in range(n_clusters) %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+              Cluster {{ c }}
+            </div>
+            <ul class="list-group list-group-flush">
+              {% for row in df if row["Cluster"] == c %}
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>{{ row["Nama"] }}</span>
+                  <small class="text-muted">{{ row["Tinggi"] }} cm / {{ row["Berat"] }} kg</small>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</body>
+</html>
